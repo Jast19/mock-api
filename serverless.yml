@@ -1,0 +1,113 @@
+service: mock-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  environment:
+    ORDER_TABLE: OrdersTable-${self:provider.stage}
+    STATUS_TABLE: StatusTable-${self:provider.stage}
+    CANCELLATION_REQUESTS_TABLE: CancellationRequestsTable-${self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+        - dynamodb:BatchWriteItem
+      Resource: 
+        - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/OrdersTable-${self:provider.stage}
+        - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/StatusTable-${self:provider.stage}
+        - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/CancellationRequestsTable-${self:provider.stage}
+
+functions:
+  downloadable:
+    handler: src/handlers/downloadable.handler
+    events:
+      - http:
+          path: /PayOrders/Orders/Downloadable
+          method: GET
+
+  cancellationRequest:
+    handler: src/handlers/cancellationRequests.handler
+    events:
+      - http:
+          path: /PayOrders/Orders/CancellationRequests
+          method: GET
+
+  deleteOrder:
+    handler: src/handlers/deleteOrder.handler
+    events:
+      - http:
+          path: /PayOrders/Order
+          method: DELETE
+
+  status:
+    handler: src/handlers/status.handler
+    events:
+      - http:
+          path: /PayOrders/Orders/Downloadable/Status
+          method: POST
+  
+  createOrder:
+    handler: src/handlers/createOrder.handler
+    events:
+      - http:
+          path: /createOrder
+          method: POST
+
+  createCancellation:
+    handler: src/handlers/createCancellation.handler
+    events:
+      - http:
+          path: /createCancellation
+          method: POST
+
+resources:
+  Resources:
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrdersTable-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    CancellationRequestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: CancellationRequestsTable-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    StatusTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StatusTable-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: PCOrderNo
+            AttributeType: S
+          - AttributeName: OrderStatus
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PCOrderNo
+            KeyType: HASH
+          - AttributeName: OrderStatus
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
