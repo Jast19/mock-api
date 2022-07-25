@@ -1,5 +1,5 @@
 service: mock-api
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
@@ -11,6 +11,7 @@ provider:
     ORDER_TABLE: OrdersTable-${self:provider.stage}
     STATUS_TABLE: StatusTable-${self:provider.stage}
     CANCELLATION_REQUESTS_TABLE: CancellationRequestsTable-${self:provider.stage}
+    DELETE_TABLE: DeleteTable-${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -20,10 +21,11 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:Query
         - dynamodb:BatchWriteItem
-      Resource: 
+      Resource:
         - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/OrdersTable-${self:provider.stage}
         - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/StatusTable-${self:provider.stage}
         - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/CancellationRequestsTable-${self:provider.stage}
+        - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/DeleteTable-${self:provider.stage}
 
 functions:
   downloadable:
@@ -53,7 +55,7 @@ functions:
       - http:
           path: /PayOrders/Orders/Downloadable/Status
           method: POST
-  
+
   createOrder:
     handler: src/handlers/createOrder.handler
     events:
@@ -74,6 +76,17 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: OrdersTable-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    DeleteTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: DeleteTable-${self:provider.stage}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
