@@ -88,10 +88,10 @@ resources:
       Properties:
         TableName: DeleteTable-${self:provider.stage}
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: PCOrderNo
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: PCOrderNo
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
 
