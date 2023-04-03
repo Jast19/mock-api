@@ -19,8 +19,6 @@ module.exports.handler = async (event, context) => {
     await dynamoDb.put(putParams).promise();
     console.log('after put *+*')
     result = {
-      statusCode: 200,
-      data: {
         Errors: null,
         Response: {
           PCOrderNo: body.PCOrderNo,
@@ -30,15 +28,12 @@ module.exports.handler = async (event, context) => {
           ProcessTime: "231303",
           NotificationCode: "1000",
           NotificationDesc: "Success"
-        }
       }
     }
   } catch (error) {
     console.log(error)
 
     result = {
-      statusCode: 200,
-      data: {
         Errors: null,
         Response: {
           PCOrderNo: body.PCOrderNo,
@@ -49,7 +44,6 @@ module.exports.handler = async (event, context) => {
           NotificationCode: "6000",
           NotificationDesc: error
         }
-      }
     }
   }
 

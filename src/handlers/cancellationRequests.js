@@ -16,13 +16,10 @@ module.exports.handler = async (event) => {
     const cancels = response.Items;
 
     result = {
-      statusCode: 200,
-      data: {
         Errors: null,
         Response: [
           ...cancels
         ]
-      }
     }
 
     const deleteCa = await deleteParams(cancels);

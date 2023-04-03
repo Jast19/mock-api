@@ -68,6 +68,27 @@ functions:
           path: /createCancellation
           method: POST
 
+  pendingStatus:
+    handler: src/handlers/pendingStatus.handler
+    events:
+      - http:
+          path: /PayOrders/Messages/CustomerService
+          method: POST
+
+  brokerCib:
+    handler: src/handlers/brokerCib.handler
+    events:
+      - http:
+          path: /esb/ChannelAdapter
+          method: POST
+
+  listControl:
+    handler: src/handlers/listControl.handler
+    events:
+      - http:
+          path: /-service-securityservices-validatecustomerlist
+          method: POST
+
 resources:
   Resources:
     OrdersTable:
