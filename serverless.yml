@@ -1,4 +1,4 @@
-service: mock-api
+service: mock-remittances
 frameworkVersion: '3'
 
 provider:
@@ -88,6 +88,24 @@ functions:
       - http:
           path: /-service-securityservices-validatecustomerlist
           method: POST
+  fullRate:
+    handler: src/handlers/fullRate.handler
+    events:
+      - http:
+          path: /componente-adaptador-nequi/foreign-currency/rates/{currency}/{operationType}/{branchType}
+          method: GET
+  softToken:
+    handler: src/handlers/softToken.handler
+    events:
+      - http:
+          path: /dev/security/softtoken
+          method: POST
+  getBalance:
+    handler: src/handlers/getBalance.handler
+    events:
+      - http:
+          path: /accounts/{account_id}/balances
+          method: GET
 
 resources:
   Resources:
